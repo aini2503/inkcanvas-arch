@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://icink.local/schemas/icink.settings.schema.json",
+  "title": "icink settings.json",
+  "description": "随文件走的配置快照。未知字段必须原样保留。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "locale", "theme"],
+  "properties": {
+    "schemaVersion": { "type": "string", "pattern": "^\\d+\\.\\d+$" },
+    "locale": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" },
+    "theme": { "type": "string", "enum": ["light", "dark", "auto"] },
+    "penDefaults": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "pen": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "color": { "$ref": "#/$defs/color" },
+            "widthMm": { "$ref": "#/$defs/widthMm" }
+          }
+        },
+        "highlighter": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "color": { "$ref": "#/$defs/color" },
+            "widthMm": { "$ref": "#/$defs/widthMm" },
+            "alpha": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "eraser": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "sizeMm": { "type": "number", "exclusiveMinimum": 0, "maximum": 100 },
+            "mode": { "type": "string", "enum": ["stroke", "pixel"] }
+          }
+        }
+      }
+    },
+    "canvas": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "pageSizeMm": { "$ref": "#/$defs/sizeMm" },
+        "background": { "type": "string", "enum": ["blank", "grid", "dotted", "lined"] },
+        "gridSpacingMm": { "type": "number", "exclusiveMinimum": 0, "maximum": 200 },
+        "palmRejection": { "type": "boolean" }
+      }
+    },
+    "ai": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "endpoint": { "type": "string", "maxLength": 300 },
+        "provider": { "type": "string", "maxLength": 40 },
+        "streaming": { "type": "boolean" },
+        "timeoutMs": { "type": "integer", "minimum": 500, "maximum": 60000 },
+        "features": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "lassoSolve": { "type": "boolean" },
+            "sketchToShape": { "type": "boolean" },
+            "boardToHandout": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "export": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "defaultFormat": { "type": "string", "enum": ["icink", "pdf", "png", "markdown"] },
+        "imageLongEdgePx": { "type": "integer", "minimum": 256, "maximum": 8192 },
+        "includeOriginalHandwriting": { "type": "boolean" }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "uploadRawInk": { "type": "boolean" },
+        "anonymizeTeacherName": { "type": "boolean" }
+      }
+    }
+  },
+  "$defs": {
+    "color": { "type": "string", "pattern": "^#[0-9A-F]{6}([0-9A-F]{2})?$" },
+    "widthMm": { "type": "number", "exclusiveMinimum": 0, "maximum": 20 },
+    "sizeMm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["w", "h"],
+      "properties": {
+        "w": { "type": "number", "exclusiveMinimum": 0, "maximum": 20000 },
+        "h": { "type": "number", "exclusiveMinimum": 0, "maximum": 20000 }
+      }
+    }
+  }
+}

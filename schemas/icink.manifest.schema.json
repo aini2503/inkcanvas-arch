@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://icink.local/schemas/icink.manifest.schema.json",
+  "title": "icink manifest.json",
+  "description": "InkTeach 墨迹存档 .icink 的全局清单。契约版本 v1。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schemaVersion",
+    "docId",
+    "title",
+    "createdAt",
+    "updatedAt",
+    "appName",
+    "appVersion",
+    "platform",
+    "pageCount",
+    "defaultPageSizeMm",
+    "pages",
+    "producer"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "格式版本 MAJOR.MINOR"
+    },
+    "docId": {
+      "type": "string",
+      "pattern": "^d_[a-z0-9_]{6,40}$"
+    },
+    "title": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "createdAt": { "$ref": "#/$defs/dateTimeWithOffset" },
+    "updatedAt": { "$ref": "#/$defs/dateTimeWithOffset" },
+    "appName": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "appVersion": { "type": "string", "minLength": 1, "maxLength": 24 },
+    "platform": { "type": "string", "enum": ["windows", "harmony", "web"] },
+    "pageCount": { "type": "integer", "minimum": 1, "maximum": 999 },
+    "defaultPageSizeMm": { "$ref": "#/$defs/sizeMm" },
+    "subject": { "type": "string", "enum": ["math", "physics", "chemistry", "other"] },
+    "gradeLevel": { "type": "string", "enum": ["primary", "junior_high", "senior_high"] },
+    "courseInfo": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "className": { "type": "string", "maxLength": 40 },
+        "teacherName": { "type": "string", "maxLength": 40 },
+        "schoolYear": { "type": "string", "maxLength": 20 },
+        "schoolName": { "type": "string", "maxLength": 60 }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 999,
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["index", "file"],
+        "properties": {
+          "index": { "type": "integer", "minimum": 1 },
+          "file": { "type": "string", "pattern": "^pages/page_\\d{4}\\.json$" },
+          "thumb": { "type": "string", "pattern": "^pages/page_\\d{4}\\.thumb\\.png$" }
+        }
+      }
+    },
+    "aiAnnotations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["file", "pageIndex", "kind"],
+        "properties": {
+          "file": { "type": "string", "pattern": "^ai/annot_\\d{4}\\.json$" },
+          "pageIndex": { "type": "integer", "minimum": 1 },
+          "kind": { "type": "string", "enum": ["solve", "shape", "handout"] }
+        }
+      }
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["contractVersion"],
+      "properties": {
+        "contractVersion": { "type": "integer", "const": 1 }
+      }
+    },
+    "encryption": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "alg": { "type": "string", "enum": ["none", "aes-256-gcm"] },
+        "kdf": { "type": "string", "enum": ["pbkdf2-sha256"] }
+      }
+    }
+  },
+  "$defs": {
+    "sizeMm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["w", "h"],
+      "properties": {
+        "w": { "type": "number", "exclusiveMinimum": 0, "maximum": 20000 },
+        "h": { "type": "number", "exclusiveMinimum": 0, "maximum": 20000 }
+      }
+    },
+    "dateTimeWithOffset": {
+      "type": "string",
+      "description": "ISO 8601，必须带时区偏移，如 2026-11-19T09:12:00+08:00",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,6})?(Z|[+-]\\d{2}:\\d{2})$"
+    }
+  }
+}

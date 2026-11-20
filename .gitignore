@@ -1,0 +1,29 @@
+# 编译产物
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 本地配置（可能含 API key，绝不提交）
+gateway/config.json
+config.json
+*.local.json
+
+# 压测生成物（体积大，可用 stress_test.py 重新生成）
+contracts/stress/
+
+# 打包产物（可用脚本重新打）
+发给组里/
+*.zip
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# 临时
+*.tmp
+*.log
+*.bak

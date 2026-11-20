@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://icink.local/schemas/ai-capability.schema.json",
+  "title": "AI 教学能力协议 v1 — 卡片载荷",
+  "description": "模型输出必须严格符合其中一种 $defs 结构，否则视为 E_MODEL_BAD_SHAPE。",
+  "$defs": {
+    "solveCard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "title", "steps", "knowledge", "pitfalls", "confidence"],
+      "properties": {
+        "kind": { "const": "solve" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["index", "text"],
+            "properties": {
+              "index": { "type": "integer", "minimum": 1, "maximum": 9 },
+              "text": { "type": "string", "minLength": 1, "maxLength": 60 },
+              "latex": { "type": ["string", "null"], "maxLength": 300 }
+            }
+          }
+        },
+        "knowledge": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "brief"],
+            "properties": {
+              "name": { "type": "string", "maxLength": 20 },
+              "brief": { "type": "string", "maxLength": 80 }
+            }
+          }
+        },
+        "pitfalls": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text"],
+            "properties": { "text": { "type": "string", "maxLength": 80 } }
+          }
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "anchor": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "pageIndex": { "type": "integer", "minimum": 1 },
+            "bboxMm": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": ["x", "y", "w", "h"],
+              "properties": {
+                "x": { "type": "number" },
+                "y": { "type": "number" },
+                "w": { "type": "number", "exclusiveMinimum": 0 },
+                "h": { "type": "number", "exclusiveMinimum": 0 }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "shapeResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "shapeType", "params", "confidence", "decidedBy"],
+      "properties": {
+        "kind": { "const": "shape" },
+        "shapeType": {
+          "type": "string",
+          "enum": ["triangle", "rectangle", "circle", "line", "coordinate_system", "function_curve"]
+        },
+        "params": { "type": "object", "additionalProperties": true },
+        "autoLabels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type"],
+            "properties": {
+              "type": { "type": "string", "enum": ["angle", "right_angle", "equal_edge", "vertex", "intercept"] },
+              "at": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } },
+              "valueDeg": { "type": "number", "minimum": -360, "maximum": 360 }
+            }
+          }
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "decidedBy": { "type": "string", "enum": ["local", "model"] }
+      }
+    },
+
+    "handout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "title", "sections"],
+      "properties": {
+        "kind": { "const": "handout" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["heading"],
+            "properties": {
+              "heading": { "type": "string", "minLength": 1, "maxLength": 20 },
+              "points": {
+                "type": "array",
+                "maxItems": 6,
+                "items": { "type": "string", "maxLength": 120 }
+              },
+              "formulas": {
+                "type": "array",
+                "maxItems": 6,
+                "items": { "type": "string", "maxLength": 300 }
+              },
+              "figures": {
+                "type": "array",
+                "maxItems": 6,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["pageIndex"],
+                  "properties": {
+                    "pageIndex": { "type": "integer", "minimum": 1 },
+                    "shapeId": { "type": "string", "pattern": "^sh_\\d{4}$" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mindmap": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["text"],
+          "properties": {
+            "text": { "type": "string", "maxLength": 40 },
+            "children": {
+              "type": "array",
+              "maxItems": 12,
+              "items": { "$ref": "#/$defs/mindNode" }
+            }
+          }
+        }
+      }
+    },
+
+    "mindNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "maxLength": 40 },
+        "children": {
+          "type": "array",
+          "maxItems": 12,
+          "items": { "$ref": "#/$defs/mindNode" }
+        }
+      }
+    },
+
+    "errorEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["error"],
+      "properties": {
+        "error": {
+          "type": "string",
+          "enum": [
+            "E_EMPTY_INPUT",
+            "E_UNSUPPORTED_SUBJECT",
+            "E_INPUT_TOO_LARGE",
+            "E_MODEL_TIMEOUT",
+            "E_MODEL_BAD_SHAPE",
+            "E_CONTENT_BLOCKED",
+            "E_QUOTA_EXCEEDED",
+            "E_VERSION_UNSUPPORTED"
+          ]
+        }
+      }
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/solveCard" },
+    { "$ref": "#/$defs/shapeResult" },
+    { "$ref": "#/$defs/handout" },
+    { "$ref": "#/$defs/errorEnvelope" }
+  ]
+}

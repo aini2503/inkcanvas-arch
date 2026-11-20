@@ -1,0 +1,26 @@
+{
+  "file": "v1-shapes.icink",
+  "note": "本文件由 gen_golden.py 生成，勿手改。改动请改生成器。",
+  "source": "F:\\DSH\\projects\\AI教学助手-架构交付\\contracts\\golden-vectors\\v1-shapes.icink",
+  "schemaVersion": "1.0",
+  "docId": "d_golden_shapes",
+  "title": "黄金向量 · 六种标准图形",
+  "platform": "windows",
+  "pageCount": 1,
+  "totalStrokes": 7,
+  "totalPoints": 84,
+  "pages": [
+    {
+      "index": 1,
+      "strokes": 7,
+      "points": 84,
+      "shapes": 6,
+      "images": 0,
+      "textBoxes": 0,
+      "contentHash": "sha256:b6fdd632855fdc2ec19ac188d8c91c44"
+    }
+  ],
+  "annotations": [],
+  "annotationCount": 0,
+  "warnings": []
+}

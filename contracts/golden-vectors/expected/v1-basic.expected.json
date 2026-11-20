@@ -1,0 +1,46 @@
+{
+  "file": "v1-basic.icink",
+  "note": "本文件由 gen_golden.py 生成，勿手改。改动请改生成器。",
+  "source": "F:\\DSH\\projects\\AI教学助手-架构交付\\contracts\\golden-vectors\\v1-basic.icink",
+  "schemaVersion": "1.0",
+  "docId": "d_golden_basic",
+  "title": "黄金向量 · 基础三页",
+  "platform": "windows",
+  "pageCount": 3,
+  "totalStrokes": 20,
+  "totalPoints": 352,
+  "pages": [
+    {
+      "index": 1,
+      "strokes": 6,
+      "points": 72,
+      "shapes": 1,
+      "images": 0,
+      "textBoxes": 1,
+      "contentHash": "sha256:3c1df6f727f25ddf6ed832051051ed90"
+    },
+    {
+      "index": 2,
+      "strokes": 6,
+      "points": 216,
+      "shapes": 0,
+      "images": 1,
+      "textBoxes": 0,
+      "contentHash": "sha256:81d2fb5cfb40356b793776a652d2a484"
+    },
+    {
+      "index": 3,
+      "strokes": 8,
+      "points": 64,
+      "shapes": 0,
+      "images": 0,
+      "textBoxes": 0,
+      "contentHash": "sha256:5b958c1e11ed791ec1729f2d25b62647"
+    }
+  ],
+  "annotations": [
+    "solve"
+  ],
+  "annotationCount": 1,
+  "warnings": []
+}
