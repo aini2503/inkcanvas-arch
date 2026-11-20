@@ -3,19 +3,13 @@
 """
 push_to_github.py —— 一键推送到 GitHub（双击 3-推送到GitHub.bat 运行）
 
-它会：
-  1. 问你的 GitHub 用户名和仓库名
-  2. 配好远程地址
-  3. 推送（第一次会弹浏览器让你登录 GitHub）
-  4. 告诉你结果
-
-前提：你已经在这个网址建好一个空仓库
-      https://github.com/new
+需要：一个 GitHub Personal Access Token（脚本里有获取步骤）
+Token 只在内存里用一次，不会写进 .git/config，不会留在磁盘上。
 """
 
 from __future__ import annotations
 
-import os
+import getpass
 import re
 import subprocess
 import sys
@@ -29,108 +23,133 @@ except Exception:
 HERE = Path(__file__).resolve().parent
 
 
-def run(args, check=False):
-    r = subprocess.run(args, cwd=str(HERE), capture_output=True, text=True,
-                       encoding="utf-8", errors="replace")
-    return r.returncode, (r.stdout or "") + (r.stderr or "")
+def run(args, capture=True):
+    kw = {"cwd": str(HERE), "text": True, "encoding": "utf-8", "errors": "replace"}
+    if capture:
+        kw["capture_output"] = True
+    r = subprocess.run(args, **kw)
+    return r.returncode, ((r.stdout or "") + (r.stderr or "")).strip()
 
 
 def main():
-    print("=" * 60)
+    print("=" * 64)
     print("   把项目推送到 GitHub")
-    print("=" * 60)
+    print("=" * 64)
     print()
 
-    # 检查是不是 git 仓库
     code, _ = run(["git", "rev-parse", "--is-inside-work-tree"])
     if code != 0:
-        print("❌ 这个目录不是 git 仓库。")
-        print("   请确认 3-推送到GitHub.bat 和这个脚本放在项目根目录。")
+        print("❌ 这个目录不是 git 仓库。请确认 bat 和脚本在项目根目录。")
         return 1
 
-    # 检查有没有提交
-    code, out = run(["git", "log", "--oneline", "-1"])
+    code, head = run(["git", "log", "--oneline", "-1"])
     if code != 0:
         print("❌ 还没有提交记录。")
         return 1
-    print(f"本地已有提交：{out.strip()}")
+    print(f"本地提交：{head}")
     print()
 
-    print("【第 1 步】先建仓库（如果还没建）")
-    print("   1. 浏览器打开  https://github.com/new")
-    print("   2. Repository name 填：inkcanvas-arch")
-    print("   3. 下面什么都不要勾（不要勾 README、不要勾 .gitignore）")
-    print("   4. 点绿色的 Create repository")
-    print("   5. 建好后这个页面可以直接关掉")
-    print()
-    input("   建好了，按回车继续...")
-    print()
+    # ---------- 读取/填写仓库信息 ----------
+    code, url = run(["git", "remote", "get-url", "origin"])
+    default_user, default_repo = "", "inkcanvas-arch"
+    if code == 0 and "github.com" in url:
+        m = re.search(r"github\.com[/:]([^/]+)/([^/.]+)", url)
+        if m:
+            default_user, default_repo = m.group(1), m.group(2)
+        print(f"已配置仓库：https://github.com/{default_user}/{default_repo}")
+        print()
 
-    # 问信息
-    print("【第 2 步】填两个信息")
-    username = input("   你的 GitHub 用户名（英文，不是邮箱）: ").strip()
-    if not username:
+    print("【第 1 步】仓库地址")
+    u = input(f"   GitHub 用户名 [{default_user or '必填'}]: ").strip() or default_user
+    if not u:
         print("❌ 用户名不能为空")
         return 1
-    if not re.fullmatch(r"[A-Za-z0-9-]+", username):
-        print("❌ 用户名只能包含字母、数字、减号")
+    r = input(f"   仓库名 [{default_repo}]: ").strip() or default_repo
+    repo_url = f"https://github.com/{u}/{r}.git"
+    print(f"   → {repo_url}")
+    print()
+
+    # ---------- Token ----------
+    print("【第 2 步】Token")
+    print("   如果还没有，按这个做（1 分钟）：")
+    print("     1. 浏览器打开  https://github.com/settings/tokens/new")
+    print("     2. Note 随便填，比如 inkcanvas-upload")
+    print("     3. Expiration 选 30 days")
+    print("     4. 下面勾选框里，只勾最上面那个  repo")
+    print("     5. 拉到最下面点 Generate token")
+    print("     6. 复制那一串 ghp_ 开头的字符（只显示一次！）")
+    print()
+    print("   粘贴时看不到字符是正常的（防偷看），粘完直接回车。")
+    print()
+    token = getpass.getpass("   Token: ").strip()
+    if not token:
+        print("❌ Token 为空")
         return 1
-
-    repo = input("   仓库名（默认 inkcanvas-arch，直接回车即可）: ").strip() or "inkcanvas-arch"
-
-    url = f"https://github.com/{username}/{repo}.git"
-    print()
-    print(f"   目标仓库：{url}")
+    if not (token.startswith("ghp_") or token.startswith("github_pat_")):
+        print("⚠️  这看起来不像 GitHub Token（通常以 ghp_ 或 github_pat_ 开头）")
+        if input("   仍然继续？(y/N): ").strip().lower() != "y":
+            return 1
     print()
 
-    # 配远程
-    code, out = run(["git", "remote", "get-url", "origin"])
+    # ---------- 配置远程（临时带 token） ----------
+    auth_url = f"https://{token}@github.com/{u}/{r}.git"
+    code, _ = run(["git", "remote", "get-url", "origin"])
     if code == 0:
-        print(f"   已有远程地址 ({out.strip()})，改为新的")
-        run(["git", "remote", "set-url", "origin", url])
+        run(["git", "remote", "set-url", "origin", auth_url])
     else:
-        run(["git", "remote", "add", "origin", url])
-        print("   已设置远程地址")
+        run(["git", "remote", "add", "origin", auth_url])
 
-    # 推送
-    print()
     print("【第 3 步】推送中...")
-    print("   如果弹出 GitHub 登录窗口：")
-    print("     → 点「Sign in with your browser」")
-    print("     → 浏览器里登录/授权")
-    print("     → 回到这个黑窗口，它会自动继续")
-    print()
-    print("   第一次可能要等 10-60 秒，别关窗口。")
     print()
 
-    # 用继承 stdio，让 git 的交互式登录能正常工作
-    r = subprocess.run(["git", "push", "-u", "origin", "main"], cwd=str(HERE))
-    print()
+    push_ok = False
+    try:
+        rc, out = run(["git", "push", "-u", "origin", "main"])
+        if rc == 0:
+            push_ok = True
+            for line in out.splitlines()[-6:]:
+                print("   " + line)
+        else:
+            print("   失败输出：")
+            for line in out.splitlines()[:10]:
+                # 别把 token 打出来
+                print("   " + line.replace(token, "***"))
+    finally:
+        # 无论如何，把 token 从 .git/config 里清掉
+        run(["git", "remote", "set-url", "origin", repo_url])
+        print()
+        print("   （Token 已从本地配置中清除）")
 
-    if r.returncode == 0:
-        print("=" * 60)
+    print()
+    if push_ok:
+        print("=" * 64)
         print("   ✅ 推送成功！")
-        print("=" * 60)
+        print("=" * 64)
         print()
-        print(f"   打开看看： https://github.com/{username}/{repo}")
-        print()
-        print("   如果仓库是 Private，别人看不到。要给别人看的话：")
-        print("   仓库页 → Settings → 最下面 Danger Zone → Change visibility → Public")
+        print(f"   打开看看： https://github.com/{u}/{r}")
         print()
         return 0
 
-    print("=" * 60)
-    print("   ❌ 推送失败")
-    print("=" * 60)
+    print("=" * 64)
+    print("   ❌ 没有推成功")
+    print("=" * 64)
     print()
-    print("   常见原因：")
-    print("   1. 仓库名或用户名打错了 → 重新运行本脚本再试")
-    print("   2. 仓库里已经有文件（比如你勾了 Add a README）")
-    print("      → 回 GitHub 把那个仓库删了，重新建一个空的")
-    print("   3. 没有登录 GitHub → 再运行一次，注意弹窗要点同意")
-    print("   4. 网络问题 → 挂梯子再试，或者明天再试")
+    print("   对照下面的症状：")
     print()
-    print("   还是不行，把这一整屏截图发给我。")
+    print("   · 401 / Authentication failed")
+    print("     → Token 复制错了或过期了，重新生成一个再试")
+    print()
+    print("   · 403 / Permission denied")
+    print("     → Token 没勾 repo 权限，重新生成，勾上 repo")
+    print()
+    print("   · 404 / Repository not found")
+    print("     → 仓库名或用户名打错了；或者仓库还没建")
+    print()
+    print("   · 502 / 连接失败")
+    print("     → 加速器又改回 hosts 了，找我要修复脚本")
+    print()
+    print("   · 其他")
+    print("     → 把这一整屏截图发给我")
     print()
     return 1
 
