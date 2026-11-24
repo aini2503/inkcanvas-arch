@@ -71,7 +71,7 @@ def stroke(sid, points, color="#1A1A1A", width=0.6, tool="pen", **extra):
 
 def manifest(doc_id, title, pages, **extra):
     m = {
-        "schemaVersion": "1.0",
+        "schemaVersion": "4.0",
         "docId": doc_id,
         "title": title,
         "createdAt": FIXED_TIME,
@@ -86,7 +86,7 @@ def manifest(doc_id, title, pages, **extra):
              **({"thumb": f"pages/page_{i + 1:04d}.thumb.png"} if p.pop("_thumb", False) else {})}
             for i, p in enumerate(pages)
         ],
-        "producer": {"contractVersion": 1},
+        "producer": {"contractVersion": 4},
     }
     m.update(extra)
     return m
@@ -94,7 +94,7 @@ def manifest(doc_id, title, pages, **extra):
 
 def settings(**extra):
     s = {
-        "schemaVersion": "1.0",
+        "schemaVersion": "4.0",
         "locale": "zh-CN",
         "theme": "light",
         "penDefaults": {
@@ -170,7 +170,7 @@ def build_basic():
     p3 = page(3, p3_strokes)
 
     annot = {
-        "schemaVersion": "1.0",
+        "schemaVersion": "4.0",
         "annotationId": "a_0001",
         "kind": "solve",
         "pageIndex": 1,
@@ -178,7 +178,7 @@ def build_basic():
                    "strokeIds": ["s_0005", "s_0006"]},
         "createdAt": FIXED_TIME,
         "model": "teach-v1",
-        "contractVersion": 1,
+        "contractVersion": 4,
         "confidence": 0.91,
         "edited": False,
         "payload": {

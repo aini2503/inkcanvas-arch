@@ -1,6 +1,6 @@
 # Prompt 模板 · board_to_handout（一课一图谱）
 
-> 版本：v1.0 · 契约：`/v1/teach/ai` capability=`board_to_handout`
+> 版本：v4.0 · 契约：`/v1/teach/ai` capability=`board_to_handout`
 > 输出必须通过 `schemas/ai-capability.schema.json#/$defs/handout` 校验。
 
 ---

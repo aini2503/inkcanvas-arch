@@ -1,6 +1,6 @@
 # Prompt 模板 · lasso_solve（一圈即解）
 
-> 版本：v1.0 · 契约：`/v1/teach/ai` capability=`lasso_solve`
+> 版本：v4.0 · 契约：`/v1/teach/ai` capability=`lasso_solve`
 > 输出必须通过 `schemas/ai-capability.schema.json#/$defs/solveCard` 校验。
 
 ---

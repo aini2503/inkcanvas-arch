@@ -74,7 +74,7 @@ def main(argv):
         headers={
             "Content-Type": "application/json",
             "Accept": "text/event-stream",
-            "X-Contract-Version": "1",
+            "X-Contract-Version": "4",
             "X-Client": "sse-client/1.0",
             "X-Request-Id": "client-1",
         },

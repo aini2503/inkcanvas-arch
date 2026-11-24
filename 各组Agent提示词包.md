@@ -60,7 +60,7 @@ WinUI 3 的 InkCanvas 或自绘 Canvas 二选一（选你已经跑通的）。
 
 【协议（已定死，不许改）】
 POST /v1/teach/ai  capability = lasso_solve
-请求头必须带 X-Contract-Version: 1
+请求头必须带 X-Contract-Version: 4
 返回是 SSE 流，5 种事件，按顺序：
   task.started → task.chunk（多次，流式文本）→ task.card（一次，结构化）→ task.usage → task.done
 出错时替代 task.done：task.error，带 code 字段
@@ -153,7 +153,7 @@ POST /v1/teach/ai  capability = lasso_solve
 
 【任务 1：AI 圈选界面】
 - 用套索框选 → 截图 → 发 POST /v1/teach/ai（capability=lasso_solve）
-- 请求头：X-Contract-Version: 1, Accept: text/event-stream
+- 请求头：X-Contract-Version: 4, Accept: text/event-stream
 - SSE 解析（鸿蒙用 http.createHttp 的 on('dataReceive')）：
     每收到 data: {...}\n\n 解析一个事件
     task.started → 显示 loading

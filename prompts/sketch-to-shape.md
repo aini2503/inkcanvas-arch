@@ -1,6 +1,6 @@
 # Prompt 模板 · sketch_to_shape（一画即规整）
 
-> 版本：v1.0 · 契约：`/v1/teach/ai` capability=`sketch_to_shape`
+> 版本：v4.0 · 契约：`/v1/teach/ai` capability=`sketch_to_shape`
 > 输出必须通过 `schemas/ai-capability.schema.json#/$defs/shapeResult` 校验。
 
 ---

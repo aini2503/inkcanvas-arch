@@ -56,7 +56,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 SCHEMA_PATH = ROOT / "schemas" / "ai-capability.schema.json"
 
-CONTRACT_VERSION = "1"
+CONTRACT_VERSION = "4"
 
 
 # ==========================================================================
@@ -854,7 +854,7 @@ def selftest():
                            "subject": subject, "context": {"gradeLevel": "junior_high"},
                            "input": inp}, ensure_ascii=False).encode()
         req = urllib.request.Request(url, data=body, method="POST", headers={
-            "Content-Type": "application/json", "X-Contract-Version": "1"})
+            "Content-Type": "application/json", "X-Contract-Version": "4"})
         events = []
         with urllib.request.urlopen(req, timeout=20) as r:
             cur, data_lines = None, []

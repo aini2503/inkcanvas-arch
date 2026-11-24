@@ -60,7 +60,7 @@ SETTINGS_SCHEMA = "icink.settings.schema.json"
 ANNOT_SCHEMA = "icink.annotation.schema.json"
 
 REQUIRED_FILES = ["manifest.json", "settings.json"]
-CONTRACT_VERSION = 1
+CONTRACT_VERSION = 4
 
 
 # --------------------------------------------------------------------------

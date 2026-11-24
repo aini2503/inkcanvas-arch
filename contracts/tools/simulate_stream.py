@@ -215,7 +215,7 @@ class Handler(BaseHTTPRequestHandler):
             req = {}
 
         cap = req.get("capability", "lasso_solve")
-        ver = self.headers.get("X-Contract-Version", "1")
+        ver = self.headers.get("X-Contract-Version", "4")
 
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream; charset=utf-8")
@@ -226,7 +226,7 @@ class Handler(BaseHTTPRequestHandler):
         self.close_connection = True                  # 发完即关，SSE 的标准结束方式
 
         try:
-            if str(ver) != "1":
+            if str(ver) != "4":
                 for ev, data in fault_events("version"):
                     self.wfile.write(sse(ev, data))
                     self.wfile.flush()

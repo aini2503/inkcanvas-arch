@@ -143,11 +143,11 @@ def main():
               any("superNewField" in i for i in rep["info"]), str(rep["info"][:2]))
 
         # 7) 高版本必须拒绝
-        f7 = mutate(files, "manifest.json", lambda m: m.update({"schemaVersion": "2.0"}))
-        p7 = tmp / "v2.icink"
+        f7 = mutate(files, "manifest.json", lambda m: m.update({"schemaVersion": "5.0"}))
+        p7 = tmp / "v5.icink"
         write_zip(p7, f7)
         rep = run_one(p7)
-        check("v2 文件被拒绝并提示升级",
+        check("v5 文件被拒绝并提示升级",
               any("必须拒绝打开" in e for e in rep["errors"]), str(rep["errors"][:2]))
 
         # 8) round-trip 幂等
